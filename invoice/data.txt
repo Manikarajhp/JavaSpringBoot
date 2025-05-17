@@ -1,0 +1,49 @@
+
+CREATE DATABASE invoice_system;
+USE invoice_system;
+
+CREATE TABLE customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    contact VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE shipping (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    contact VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    customer_id BIGINT,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE products (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE invoice_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id BIGINT,
+    product_id BIGINT,
+    quantity INT NOT NULL,
+    tax DECIMAL(5,2) NOT NULL,
+    discount DECIMAL(5,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE invoices (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_number VARCHAR(50) UNIQUE NOT NULL,
+    customer_id BIGINT,
+    shipping_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (shipping_id) REFERENCES shipping(id)
+);
