@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Invoice</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+nav {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+nav h1 {
+    margin: 0;
+}
+
+section {
+    margin: 2rem auto;
+    max-width: 1200px;
+    padding: 0 1rem;
+}
+
+h2 {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 0.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Form Styles */
+.form-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.customer-details, .ship-details {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+label {
+    display: block;
+    margin: 0.5rem 0 0.25rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Product Table Styles */
+#product-table {
+    margin-bottom: 1rem;
+}
+
+#product-table input {
+    width: 90%;
+    padding: 0.25rem;
+}
+
+.product-suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.product-suggestions div {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.product-suggestions div:hover {
+    background-color: #f2f2f2;
+}
+
+/* Button Styles */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.delete-row {
+    background-color: #f44336;
+}
+
+.delete-row:hover {
+    background-color: #d32f2f;
+}
+
+/* Invoice Styles */
+.invoice-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.invoice-header h1 {
+    margin: 0;
+    color: #4CAF50;
+}
+
+.company-info {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.company-info h2 {
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+}
+
+.customer-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.bill-to, .ship-to {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.bill-to {
+    margin-right: 1rem;
+}
+
+.invoice-table {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-collapse: collapse;
+}
+
+.invoice-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.invoice-table th, .invoice-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.invoice-totals {
+    margin-left: auto;
+    width: 300px;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.grand-total {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+.invoice-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.invoice-actions button, .invoice-actions a {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.5rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.invoice-actions a {
+    background-color: #2196F3;
+}
+
+.invoice-actions button:hover, .invoice-actions a:hover {
+    opacity: 0.9;
+}
+
+@media print {
+    .invoice-actions {
+        display: none;
+    }
+    
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+}
+
+/* Print-specific styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 1cm;
+    color: #333;
+}
+
+.invoice-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.invoice-header h1 {
+    margin: 0;
+    color: #4CAF50;
+    font-size: 1.5rem;
+}
+
+.company-info {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.company-info h2 {
+    color: #4CAF50;
+    margin-bottom: 0.25rem;
+    font-size: 1.2rem;
+}
+
+.customer-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.bill-to, .ship-to {
+    flex: 1;
+    padding: 0.5rem;
+}
+
+.bill-to {
+    margin-right: 0.5rem;
+}
+
+.invoice-table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.invoice-table th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem;
+}
+
+.invoice-table td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+}
+
+.invoice-totals {
+    margin-left: auto;
+    width: 250px;
+    font-size: 0.9rem;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.grand-total {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+@page {
+    size: A4;
+    margin: 1cm;
+}
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>Invoice System</h1>
+    </nav>
+    
+    <section class="company-details">
+        <h2>Company Details</h2>
+        <table>
+            <tr>
+                <td>Company Name:</td>
+                <td>ADEGHL-Invoice</td>
+            </tr>
+            <tr>
+                <td>Address:</td>
+                <td>123 Main Street, Tamil Nadu, India</td>
+            </tr>
+            <tr>
+                <td>Contact:</td>
+                <td>+91-9876543210</td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td>support@adeghl-invoice.com</td>
+            </tr>
+        </table>
+    </section>
+
+    <form id="invoiceForm" th:action="@{/invoice/generate}" method="post" th:object="${invoiceDTO}">
+        <section class="seller-buyer">
+            <h2>Customer & Shipping Details</h2>
+            <div class="form-container">
+                <div class="customer-details">
+                    <h3>Customer Details</h3>
+                    
+                    <label for="customer-name">Customer Name:</label>
+                    <input type="text" id="customer-name" th:field="*{customer.name}" required>
+                    <label for="customer-address">Address:</label>
+                    <input type="text" id="customer-address" th:field="*{customer.address}" required>
+                    <label for="customer-contact">Contact:</label>
+                    <input type="tel" id="customer-contact" th:field="*{customer.contact}" required>
+                    <label for="customer-email">Email:</label>
+                    <input type="email" id="customer-email" th:field="*{customer.email}" required>
+                </div>
+                <div class="ship-details">
+                    <h3>Shipping Details</h3>
+                    <label for="ship-name">Shipping Name:</label>
+                    <input type="text" id="ship-name" th:field="*{shipping.name}" required>
+                    <label for="ship-address">Shipping Address:</label>
+                    <input type="text" id="ship-address" th:field="*{shipping.address}" required>
+                    <label for="ship-contact">Shipping Contact:</label>
+                    <input type="tel" id="ship-contact" th:field="*{shipping.contact}" required>
+                    <label for="ship-email">Shipping Email:</label>
+                    <input type="email" id="ship-email" th:field="*{shipping.email}" required>
+                </div>
+            </div>
+        </section>
+
+        <section class="product-section">
+            <h2>Product Details</h2>
+            <div class="product-details">
+                <table id="product-table">
+                    <thead>
+                        <tr>
+                            <th>Serial No.</th>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Tax (%)</th>
+                            <th>Discount (%)</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productRows">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+                <button type="button" id="add-row">Add Product</button>
+                <button type="submit" id="generate-invoice">Generate Invoice</button>
+            </div>
+        </section>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const productTable = document.getElementById('product-table');
+    const productRows = document.getElementById('productRows');
+    const addRowBtn = document.getElementById('add-row');
+    const invoiceForm = document.getElementById('invoiceForm');
+    
+    let rowCount = 0;
+    
+    // Add initial row
+    addRow();
+    
+    // Add row button click event
+    addRowBtn.addEventListener('click', addRow);
+    
+    // Form submit event
+    document.getElementById('generate-invoice').addEventListener('click', function() {
+    const invoiceDTO = {
+            customer: {
+                name: document.getElementById('customer-name').value,
+                address: document.getElementById('customer-address').value,
+                contact: document.getElementById('customer-contact').value,
+                email: document.getElementById('customer-email').value
+            },
+            shipping: {
+                name: document.getElementById('ship-name').value,
+                address: document.getElementById('ship-address').value,
+                contact: document.getElementById('ship-contact').value,
+                email: document.getElementById('ship-email').value
+            },
+            items: getProductItems()
+        };
+
+    fetch('/invoice/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invoiceDTO)
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+function getProductItems() {
+    const rows = document.querySelectorAll('#productRows tr');
+    return Array.from(rows).map(row => {
+        const inputs = row.querySelectorAll('input');
+        return {
+            serialNo: parseInt(inputs[0].value),
+            product: {
+                name: inputs[1].value,
+                price: parseFloat(inputs[3].value),
+                taxRate: parseFloat(inputs[4].value),
+                discountRate: parseFloat(inputs[5].value)
+            },
+            quantity: parseInt(inputs[2].value),
+            price: parseFloat(inputs[3].value),
+            tax: parseFloat(inputs[4].value),
+            discount: parseFloat(inputs[5].value)
+        };
+    });
+}
+    
+    // Function to add a new row
+    function addRow() {
+        rowCount++;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="number" name="items[${rowCount-1}].serialNo" class="serial-no" readonly value="${rowCount}"></td>
+            <td>
+                <input type="text" name="items[${rowCount-1}].product.name" class="product-name" required>
+                <div class="product-suggestions"></div>
+                <input type="hidden" name="items[${rowCount-1}].product.id" class="product-id">
+            </td>
+            <td><input type="number" name="items[${rowCount-1}].quantity" class="quantity" required min="1" value="1"></td>
+            <td><input type="number" name="items[${rowCount-1}].price" class="price" required min="0" step="0.01" value="0"></td>
+            <td><input type="number" name="items[${rowCount-1}].tax" class="tax" required min="0" max="100" step="0.01" value="0"></td>
+            <td><input type="number" name="items[${rowCount-1}].discount" class="discount" required min="0" max="100" step="0.01" value="0"></td>
+            <td><input type="number" name="items[${rowCount-1}].total" class="total" readonly value="0"></td>
+            <td><button type="button" class="delete-row">Delete</button></td>
+        `;
+        productRows.appendChild(row);
+        
+        // Add event listeners for the new row
+        addRowEventListeners(row);
+    }
+    
+    // Function to add event listeners to a row
+    function addRowEventListeners(row) {
+        const deleteBtn = row.querySelector('.delete-row');
+        const quantityInput = row.querySelector('.quantity');
+        const priceInput = row.querySelector('.price');
+        const taxInput = row.querySelector('.tax');
+        const discountInput = row.querySelector('.discount');
+        const totalInput = row.querySelector('.total');
+        const productNameInput = row.querySelector('.product-name');
+        const productSuggestions = row.querySelector('.product-suggestions');
+        const productIdInput = row.querySelector('.product-id');
+        
+        // Delete row button
+        deleteBtn.addEventListener('click', function() {
+            row.remove();
+            updateSerialNumbers();
+        });
+        
+        // Calculate total when any of these fields change
+        [quantityInput, priceInput, taxInput, discountInput].forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+        
+        // Product name autocomplete
+        productNameInput.addEventListener('input', function() {
+            const query = this.value;
+            if (query.length > 2) {
+                fetch(`/api/products/search?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(products => {
+                        productSuggestions.innerHTML = '';
+                        products.forEach(product => {
+                            const suggestion = document.createElement('div');
+                            suggestion.textContent = product.name;
+                            suggestion.addEventListener('click', function() {
+                                productNameInput.value = product.name;
+                                priceInput.value = product.price;
+                                taxInput.value = product.taxRate;
+                                discountInput.value = product.discountRate;
+                                productIdInput.value = product.id;
+                                productSuggestions.innerHTML = '';
+                                calculateTotal();
+                            });
+                            productSuggestions.appendChild(suggestion);
+                        });
+                    });
+            } else {
+                productSuggestions.innerHTML = '';
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!row.contains(e.target)) {
+                productSuggestions.innerHTML = '';
+            }
+        });
+        
+        // Function to calculate total for the row
+        function calculateTotal() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const tax = parseFloat(taxInput.value) || 0;
+            const discount = parseFloat(discountInput.value) || 0;
+            
+            const subtotal = quantity * price;
+            const taxAmount = subtotal * (tax / 100);
+            const discountAmount = subtotal * (discount / 100);
+            const total = subtotal + taxAmount - discountAmount;
+            
+            totalInput.value = total.toFixed(2);
+        }
+    }
+    
+    // Function to update serial numbers after deletion
+    function updateSerialNumbers() {
+        const rows = productRows.querySelectorAll('tr');
+        rows.forEach((row, index) => {
+            row.querySelector('.serial-no').value = index + 1;
+        });
+        rowCount = rows.length;
+    }
+});
+    </script>
+</body>
+</html>

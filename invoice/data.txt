@@ -1,53 +1,87 @@
 
-ITHULA IRUKURATHA APPDIYE COPY PANNI UN DATA BASE WORKBENCH LA PODU POTHUM
-
-
+select * from customer;
+-- select * from invoices;
+-- select * from products;
+-- select * from invoice_items;
+-- drop database invoice_system;
 
 CREATE DATABASE invoice_system;
 USE invoice_system;
 
-CREATE TABLE customers (
+CREATE TABLE customer (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    address TEXT NOT NULL,
+    address VARCHAR(255) NOT NULL,
     contact VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_customer_name (name),
+    INDEX idx_customer_email (email)
 );
 
 CREATE TABLE shipping (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    address TEXT NOT NULL,
+    address VARCHAR(255) NOT NULL,
     contact VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    customer_id BIGINT,
-    FOREIGN KEY (customer_id) REFERENCES customers(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_shipping_name (name),
+    INDEX idx_shipping_email (email)
 );
 
-CREATE TABLE products (
+CREATE TABLE product (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    price DECIMAL(10,2) NOT NULL
-);
-
-CREATE TABLE invoice_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    invoice_id BIGINT,
-    product_id BIGINT,
-    quantity INT NOT NULL,
-    tax DECIMAL(5,2) NOT NULL,
-    discount DECIMAL(5,2) NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-CREATE TABLE invoices (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    invoice_number VARCHAR(50) UNIQUE NOT NULL,
-    customer_id BIGINT,
-    shipping_id BIGINT,
+    price DECIMAL(10, 2) NOT NULL,
+    tax_rate DECIMAL(5, 2) NOT NULL,
+    discount_rate DECIMAL(5, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customers(id),
-    FOREIGN KEY (shipping_id) REFERENCES shipping(id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_product_name (name),
+    INDEX idx_product_price (price)
 );
+
+CREATE TABLE invoice (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_number VARCHAR(20) NOT NULL UNIQUE,
+    invoice_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    customer_id BIGINT NOT NULL,
+    shipping_id BIGINT NOT NULL,
+    subtotal DECIMAL(12, 2) NOT NULL,
+    total_tax DECIMAL(12, 2) NOT NULL,
+    total_discount DECIMAL(12, 2) NOT NULL,
+    grand_total DECIMAL(12, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE RESTRICT,
+    FOREIGN KEY (shipping_id) REFERENCES shipping(id) ON DELETE RESTRICT,
+    INDEX idx_invoice_number (invoice_number),
+    INDEX idx_invoice_date (invoice_date),
+    INDEX idx_invoice_customer (customer_id)
+);
+
+CREATE TABLE invoice_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id BIGINT NOT NULL,
+    serial_no INT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    tax DECIMAL(5, 2) NOT NULL,
+    discount DECIMAL(5, 2) NOT NULL,
+    total DECIMAL(12, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (invoice_id) REFERENCES invoice(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE RESTRICT,
+    INDEX idx_invoice_item_invoice (invoice_id),
+    INDEX idx_invoice_item_product (product_id)
+);
+
+
+ALTER TABLE invoice_item 
+ADD CONSTRAINT fk_invoice_item_invoice
+FOREIGN KEY (invoice_id) REFERENCES invoice(id);

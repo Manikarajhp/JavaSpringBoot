@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Preview</title>
+    <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+nav {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+nav h1 {
+    margin: 0;
+}
+
+section {
+    margin: 2rem auto;
+    max-width: 1200px;
+    padding: 0 1rem;
+}
+
+h2 {
+    color: #4CAF50;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 0.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Form Styles */
+.form-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.customer-details, .ship-details {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+label {
+    display: block;
+    margin: 0.5rem 0 0.25rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Product Table Styles */
+#product-table {
+    margin-bottom: 1rem;
+}
+
+#product-table input {
+    width: 90%;
+    padding: 0.25rem;
+}
+
+.product-suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.product-suggestions div {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.product-suggestions div:hover {
+    background-color: #f2f2f2;
+}
+
+/* Button Styles */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.delete-row {
+    background-color: #f44336;
+}
+
+.delete-row:hover {
+    background-color: #d32f2f;
+}
+
+/* Invoice Styles */
+.invoice-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.invoice-header h1 {
+    margin: 0;
+    color: #4CAF50;
+}
+
+.company-info {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.company-info h2 {
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+}
+
+.customer-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.bill-to, .ship-to {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.bill-to {
+    margin-right: 1rem;
+}
+
+.invoice-table {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-collapse: collapse;
+}
+
+.invoice-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.invoice-table th, .invoice-table td {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.invoice-totals {
+    margin-left: auto;
+    width: 300px;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.grand-total {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+.invoice-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.invoice-actions button, .invoice-actions a {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.5rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.invoice-actions a {
+    background-color: #2196F3;
+}
+
+.invoice-actions button:hover, .invoice-actions a:hover {
+    opacity: 0.9;
+}
+
+@media print {
+    .invoice-actions {
+        display: none;
+    }
+    
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+}
+
+/* Print-specific styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 1cm;
+    color: #333;
+}
+
+.invoice-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #4CAF50;
+}
+
+.invoice-header h1 {
+    margin: 0;
+    color: #4CAF50;
+    font-size: 1.5rem;
+}
+
+.company-info {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.company-info h2 {
+    color: #4CAF50;
+    margin-bottom: 0.25rem;
+    font-size: 1.2rem;
+}
+
+.customer-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.bill-to, .ship-to {
+    flex: 1;
+    padding: 0.5rem;
+}
+
+.bill-to {
+    margin-right: 0.5rem;
+}
+
+.invoice-table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.invoice-table th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem;
+}
+
+.invoice-table td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+}
+
+.invoice-totals {
+    margin-left: auto;
+    width: 250px;
+    font-size: 0.9rem;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.grand-total {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+@page {
+    size: A4;
+    margin: 1cm;
+}
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <header class="invoice-header">
+            <h1>INVOICE</h1>
+            <div class="invoice-info">
+                <p><strong>Invoice #:</strong> <span th:text="${invoice.invoiceNumber}"></span></p>
+                <p><strong>Date:</strong> <span th:text="${#dates.format(invoice.invoiceDate, 'dd MMM yyyy')}"></span></p>
+            </div>
+        </header>
+
+        <div class="company-info">
+            <h2>ADEGHL-Invoice</h2>
+            <p>123 Main Street, Tamil Nadu, India</p>
+            <p>+91-9876543210 | support@adeghl-invoice.com</p>
+        </div>
+
+        <div class="customer-info">
+            <div class="bill-to">
+                <h3>Bill To:</h3>
+                <p th:text="${invoice.customer.name}"></p>
+                <p th:text="${invoice.customer.address}"></p>
+                <p th:text="${invoice.customer.contact}"></p>
+                <p th:text="${invoice.customer.email}"></p>
+            </div>
+            <div class="ship-to">
+                <h3>Ship To:</h3>
+                <p th:text="${invoice.shipping.name}"></p>
+                <p th:text="${invoice.shipping.address}"></p>
+                <p th:text="${invoice.shipping.contact}"></p>
+                <p th:text="${invoice.shipping.email}"></p>
+            </div>
+        </div>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Tax</th>
+                    <th>Discount</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${invoice.items}">
+                    <td th:text="${item.serialNo}"></td>
+                    <td th:text="${item.product.name}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td th:text="${#numbers.formatDecimal(item.price, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(item.tax, 1, 2)} + '%'"></td>
+                    <td th:text="${#numbers.formatDecimal(item.discount, 1, 2)} + '%'"></td>
+                    <td th:text="${#numbers.formatDecimal(item.total, 1, 2)}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="invoice-totals">
+            <div class="totals-row">
+                <span>Subtotal:</span>
+                <span th:text="${#numbers.formatDecimal(invoice.subtotal, 1, 2)}"></span>
+            </div>
+            <div class="totals-row">
+                <span>Tax:</span>
+                <span th:text="${#numbers.formatDecimal(invoice.totalTax, 1, 2)}"></span>
+            </div>
+            <div class="totals-row">
+                <span>Discount:</span>
+                <span th:text="${#numbers.formatDecimal(invoice.totalDiscount, 1, 2)}"></span>
+            </div>
+            <div class="totals-row grand-total">
+                <span>Grand Total:</span>
+                <span th:text="${#numbers.formatDecimal(invoice.grandTotal, 1, 2)}"></span>
+            </div>
+        </div>
+
+        <div class="invoice-actions">
+            <button onclick="window.print()">Print Invoice</button>
+            <a th:href="@{'/invoice/download/' + ${invoice.id}}">Download PDF</a>
+            <a th:href="@{/invoice/create}">Create New Invoice</a>
+        </div>
+    </div>
+</body>
+</html>
