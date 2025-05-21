@@ -440,7 +440,6 @@ body {
 
         <div class="invoice-actions">
             <button onclick="window.print()">Print Invoice</button>
-            <a th:href="@{'/invoice/download/' + ${invoice.id}}">Download PDF</a>
             <a th:href="@{/invoice/create}">Create New Invoice</a>
         </div>
     </div>
