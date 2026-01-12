@@ -114,6 +114,7 @@
             flex: 1;
             min-width: 300px;
             padding-right: 40px;
+            z-index: 1000;
         }
 
         .home-content h1 {

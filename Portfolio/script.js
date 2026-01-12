@@ -6,6 +6,30 @@
         let isDeleting = false;
         let isEnd = false;
 
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            // F12
+            if (e.key === "F12") {
+                e.preventDefault();
+            }
+        
+            // Ctrl+Shift+I / J / C
+            if (e.ctrlKey && e.shiftKey && 
+                (e.key === "I" || e.key === "J" || e.key === "C")) {
+                e.preventDefault();
+            }
+        
+            // Ctrl+U (view source)
+            if (e.ctrlKey && e.key === "u") {
+                e.preventDefault();
+            }
+        });
+
+
+
         function type() {
             const currentPhrase = phrases[phraseIndex];
             
@@ -115,15 +139,6 @@
                 top: 0,
                 behavior: 'smooth'
             });
-        });
-
-        // Form submission
-        const form = document.getElementById('form');
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Thank you for your message! I will get back to you soon.');
-            form.reset();
         });
 
         // Scroll animations
